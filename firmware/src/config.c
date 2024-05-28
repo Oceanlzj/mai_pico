@@ -36,6 +36,7 @@ static mai_cfg_t default_cfg = {
     .alt = {
         .buttons = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
         .touch = TOUCH_MAP,
+        .LowEnable = true
     },
     .aime = {
         .mode = 0,

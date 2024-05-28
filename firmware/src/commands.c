@@ -26,7 +26,7 @@ static void disp_rgb()
 {
     printf("[RGB]\n");
     printf("  Number per button: %d, number per aux: %d\n",
-            mai_cfg->rgb.per_button, mai_cfg->rgb.per_aux);
+           mai_cfg->rgb.per_button, mai_cfg->rgb.per_aux);
     printf("  Key on: %06x, off: %06x\n  Level: %d\n",
            mai_cfg->color.key_on, mai_cfg->color.key_off, mai_cfg->color.level);
 }
@@ -34,7 +34,8 @@ static void disp_rgb()
 static void print_sense_zone(const char *title, const uint8_t *zones, int num)
 {
     printf("   %s |", title);
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++)
+    {
         printf("%2d |", zones[i]);
     }
     printf("\n");
@@ -44,8 +45,8 @@ static void disp_sense()
 {
     printf("[Sense]\n");
     printf("  Filter: %u, %u, %u\n", mai_cfg->sense.filter >> 6,
-                                    (mai_cfg->sense.filter >> 4) & 0x03,
-                                    mai_cfg->sense.filter & 0x07);
+           (mai_cfg->sense.filter >> 4) & 0x03,
+           mai_cfg->sense.filter & 0x07);
     printf("  Sensitivity (global: %+d):\n", mai_cfg->sense.global);
     printf("     |_1_|_2_|_3_|_4_|_5_|_6_|_7_|_8_|\n");
     print_sense_zone("A", mai_cfg->sense.zones, 8);
@@ -63,7 +64,8 @@ static void disp_hid()
     const char *nkro[] = {"off", "key1", "key2"};
     printf("  Joy: %s, NKRO: %s\n", mai_cfg->hid.joy ? "on" : "off",
            mai_cfg->hid.nkro <= 2 ? nkro[mai_cfg->hid.nkro] : "key1");
-    if (mai_runtime.key_stuck) {
+    if (mai_runtime.key_stuck)
+    {
         printf("  !!! Button stuck, force JOY only !!!\n");
     }
 }
@@ -79,12 +81,14 @@ static void disp_aime()
 static void disp_gpio()
 {
     printf("[GPIO]\n ");
-    for (int i = 0; i < 8; i++) {
+    printf("Enable Level: %s\n", mai_cfg->alt.LowEnable ? "Low" : "High");
+    for (int i = 0; i < 8; i++)
+    {
         printf(" B%d:GP%d", i + 1, button_real_gpio(i));
     }
     printf("\n  Test:GP%d Svc:GP%d Nav:GP%d Coin:GP%d\n",
-        button_real_gpio(8), button_real_gpio(9),
-        button_real_gpio(10), button_real_gpio(11));
+           button_real_gpio(8), button_real_gpio(9),
+           button_real_gpio(10), button_real_gpio(11));
 }
 
 static void disp_touch()
@@ -92,9 +96,11 @@ static void disp_touch()
     printf("[Touch]\n");
     printf("     ADDR|_0|_1|_2|_3|_4|_5|_6|_7|_8|_9|10|11|\n");
 
-    for (int m = 0; m < 3; m++) {
+    for (int m = 0; m < 3; m++)
+    {
         printf("  %d: 0x%02x|", m, MPR121_BASE_ADDR + m);
-        for (int chn = 0; chn < 12; chn++) {
+        for (int chn = 0; chn < 12; chn++)
+        {
             int key = touch_key_from_channel(m * 12 + chn);
             printf("%2s|", touch_key_name(key));
         }
@@ -105,12 +111,14 @@ static void disp_touch()
 void handle_display(int argc, char *argv[])
 {
     const char *usage = "Usage: display [rgb|sense|hid|gpio|aime]\n";
-    if (argc > 1) {
+    if (argc > 1)
+    {
         printf(usage);
         return;
     }
 
-    if (argc == 0) {
+    if (argc == 0)
+    {
         disp_rgb();
         disp_sense();
         disp_hid();
@@ -121,43 +129,46 @@ void handle_display(int argc, char *argv[])
     }
 
     const char *choices[] = {"rgb", "sense", "hid", "gpio", "touch", "aime"};
-    switch (cli_match_prefix(choices, 6, argv[0])) {
-        case 0:
-            disp_rgb();
-            break;
-        case 1:
-            disp_sense();
-            break;
-        case 2:
-            disp_hid();
-            break;
-        case 3:
-            disp_gpio();
-            break;
-        case 4:
-            disp_touch();
-            break;
-        case 5:
-            disp_aime();
-            break;
-        default:
-            printf(usage);
-            break;
+    switch (cli_match_prefix(choices, 6, argv[0]))
+    {
+    case 0:
+        disp_rgb();
+        break;
+    case 1:
+        disp_sense();
+        break;
+    case 2:
+        disp_hid();
+        break;
+    case 3:
+        disp_gpio();
+        break;
+    case 4:
+        disp_touch();
+        break;
+    case 5:
+        disp_aime();
+        break;
+    default:
+        printf(usage);
+        break;
     }
 }
 
 static void handle_rgb(int argc, char *argv[])
 {
     const char *usage = "Usage: rgb <1..16> <1..16>\n";
-    if (argc != 2) {
+    if (argc != 2)
+    {
         printf(usage);
         return;
     }
 
     int per_button = cli_extract_non_neg_int(argv[0], 0);
-    int per_aux = cli_extract_non_neg_int(argv[1], 0);    
+    int per_aux = cli_extract_non_neg_int(argv[1], 0);
     if ((per_button < 1) || (per_button > 16) ||
-        (per_aux < 1) || (per_aux > 16)) {
+        (per_aux < 1) || (per_aux > 16))
+    {
         printf(usage);
         return;
     }
@@ -172,13 +183,15 @@ static void handle_rgb(int argc, char *argv[])
 static void handle_level(int argc, char *argv[])
 {
     const char *usage = "Usage: level <0..255>\n";
-    if (argc != 1) {
+    if (argc != 1)
+    {
         printf(usage);
         return;
     }
 
     int level = cli_extract_non_neg_int(argv[0], 0);
-    if ((level < 0) || (level > 255)) {
+    if ((level < 0) || (level > 255))
+    {
         printf(usage);
         return;
     }
@@ -190,22 +203,30 @@ static void handle_level(int argc, char *argv[])
 
 static void handle_stat(int argc, char *argv[])
 {
-    if (argc == 0) {
-        for (int col = 0; col < 4; col++) {
+    if (argc == 0)
+    {
+        for (int col = 0; col < 4; col++)
+        {
             printf(" %2dA |", col * 4 + 1);
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++)
+            {
                 printf("%6u|", touch_count(col * 8 + i * 2));
             }
             printf("\n   B |");
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++)
+            {
                 printf("%6u|", touch_count(col * 8 + i * 2 + 1));
             }
             printf("\n");
         }
-    } else if ((argc == 1) &&
-               (strncasecmp(argv[0], "reset", strlen(argv[0])) == 0)) {
+    }
+    else if ((argc == 1) &&
+             (strncasecmp(argv[0], "reset", strlen(argv[0])) == 0))
+    {
         touch_reset_stat();
-    } else {
+    }
+    else
+    {
         printf("Usage: stat [reset]\n");
     }
 }
@@ -213,33 +234,36 @@ static void handle_stat(int argc, char *argv[])
 static void handle_hid(int argc, char *argv[])
 {
     const char *usage = "Usage: hid <joy|key1|key2>\n";
-    if (argc != 1) {
+    if (argc != 1)
+    {
         printf(usage);
         return;
     }
 
     const char *choices[] = {"joy", "key1", "key2"};
     int match = cli_match_prefix(choices, 3, argv[0]);
-    if (match < 0) {
+    if (match < 0)
+    {
         printf(usage);
         return;
     }
 
-    switch (match) {
-            break;
-        case 1:
-            mai_cfg->hid.joy = 0;
-            mai_cfg->hid.nkro = 1;
-            break;
-        case 2:
-            mai_cfg->hid.joy = 0;
-            mai_cfg->hid.nkro = 2;
-            break;
-        case 0:
-        default:
-            mai_cfg->hid.joy = 1;
-            mai_cfg->hid.nkro = 0;
-            break;
+    switch (match)
+    {
+        break;
+    case 1:
+        mai_cfg->hid.joy = 0;
+        mai_cfg->hid.nkro = 1;
+        break;
+    case 2:
+        mai_cfg->hid.joy = 0;
+        mai_cfg->hid.nkro = 2;
+        break;
+    case 0:
+    default:
+        mai_cfg->hid.joy = 1;
+        mai_cfg->hid.nkro = 0;
+        break;
     }
     config_changed();
     disp_hid();
@@ -251,7 +275,8 @@ static void handle_filter(int argc, char *argv[])
                         "    first: First iteration [0..3]\n"
                         "   second: Second iteration [0..3]\n"
                         " interval: Interval of second iterations [0..7]\n";
-    if ((argc < 2) || (argc > 3)) {
+    if ((argc < 2) || (argc > 3))
+    {
         printf(usage);
         return;
     }
@@ -259,12 +284,14 @@ static void handle_filter(int argc, char *argv[])
     int ffi = cli_extract_non_neg_int(argv[0], 0);
     int sfi = cli_extract_non_neg_int(argv[1], 0);
     int intv = mai_cfg->sense.filter & 0x07;
-    if (argc == 3) {
+    if (argc == 3)
+    {
         intv = cli_extract_non_neg_int(argv[2], 0);
     }
 
     if ((ffi < 0) || (ffi > 3) || (sfi < 0) || (sfi > 3) ||
-        (intv < 0) || (intv > 7)) {
+        (intv < 0) || (intv > 7))
+    {
         printf(usage);
         return;
     }
@@ -278,36 +305,46 @@ static void handle_filter(int argc, char *argv[])
 
 static uint8_t *extract_key(const char *param)
 {
-    if (strlen(param) != 2) {
+    if (strlen(param) != 2)
+    {
         return NULL;
     }
 
     int zone = param[0] - 'A';
     int id = param[1] - '1';
 
-    if (zone < 0 || zone > 4 || id < 0 || id > 7) {
+    if (zone < 0 || zone > 4 || id < 0 || id > 7)
+    {
         return NULL;
     }
-    if ((zone == 2) && (id > 1)) {
+    if ((zone == 2) && (id > 1))
+    {
         return NULL; // C1 and C2 only
     }
 
-    const int offsets[] = { 0, 8, 16, 18, 26 };
+    const int offsets[] = {0, 8, 16, 18, 26};
 
     return &mai_cfg->sense.zones[offsets[zone] + id];
 }
 
 static void sense_do_op(int8_t *target, char op)
 {
-    if (op == '+') {
-        if (*target < SENSE_LIMIT_MAX) {
+    if (op == '+')
+    {
+        if (*target < SENSE_LIMIT_MAX)
+        {
             (*target)++;
         }
-    } else if (op == '-') {
-        if (*target > SENSE_LIMIT_MIN) {
+    }
+    else if (op == '-')
+    {
+        if (*target > SENSE_LIMIT_MIN)
+        {
             (*target)--;
         }
-    } else if (op == '0') {
+    }
+    else if (op == '0')
+    {
         *target = 0;
     }
 }
@@ -320,28 +357,38 @@ static void handle_sense(int argc, char *argv[])
                         "  >sense -\n"
                         "  >sense A3 +\n"
                         "  >sense C1 -\n";
-                        "  >sense * 0\n";
-    if ((argc < 1) || (argc > 2)) {
+    "  >sense * 0\n";
+    if ((argc < 1) || (argc > 2))
+    {
         printf(usage);
         return;
     }
 
     const char *op = argv[argc - 1];
-    if ((strlen(op) != 1) || !strchr("+-0", op[0])) {
+    if ((strlen(op) != 1) || !strchr("+-0", op[0]))
+    {
         printf(usage);
         return;
     }
 
-    if (argc == 1) {
+    if (argc == 1)
+    {
         sense_do_op(&mai_cfg->sense.global, op[0]);
-    } else {
-        if (strcmp(argv[0], "*") == 0) {
-            for (int i = 0; i < sizeof(mai_cfg->sense.zones); i++) {
+    }
+    else
+    {
+        if (strcmp(argv[0], "*") == 0)
+        {
+            for (int i = 0; i < sizeof(mai_cfg->sense.zones); i++)
+            {
                 sense_do_op(&mai_cfg->sense.zones[i], op[0]);
             }
-        } else {
+        }
+        else
+        {
             uint8_t *key = extract_key(argv[0]);
-            if (!key) {
+            if (!key)
+            {
                 printf(usage);
                 return;
             }
@@ -358,22 +405,26 @@ static void handle_debounce(int argc, char *argv[])
 {
     const char *usage = "Usage: debounce <touch> [release]\n"
                         "  touch, release: 0..7\n";
-    if ((argc < 1) || (argc > 2)) {
+    if ((argc < 1) || (argc > 2))
+    {
         printf(usage);
         return;
     }
 
     int touch = mai_cfg->sense.debounce_touch;
     int release = mai_cfg->sense.debounce_release;
-    if (argc >= 1) {
+    if (argc >= 1)
+    {
         touch = cli_extract_non_neg_int(argv[0], 0);
     }
-    if (argc == 2) {
+    if (argc == 2)
+    {
         release = cli_extract_non_neg_int(argv[1], 0);
     }
 
     if ((touch < 0) || (release < 0) ||
-        (touch > 7) || (release > 7)) {
+        (touch > 7) || (release > 7))
+    {
         printf(usage);
         return;
     }
@@ -389,7 +440,8 @@ static void handle_debounce(int argc, char *argv[])
 static void print_raw_zones(const char *title, const uint16_t *raw, int num)
 {
     printf(" %s |", title);
-    for (int i = 0; i < num; i++) {
+    for (int i = 0; i < num; i++)
+    {
         printf(" %3d |", raw[i]);
     }
     printf("\n");
@@ -400,9 +452,9 @@ static void handle_raw()
     printf("Touch raw readings:\n");
     const uint16_t *raw = touch_raw();
     printf("   Sensor: 0: %s, 1: %s 2: %s\n",
-            touch_sensor_ok(0) ? "OK" : "ERR",
-            touch_sensor_ok(1) ? "OK" : "ERR",
-            touch_sensor_ok(2) ? "OK" : "ERR");
+           touch_sensor_ok(0) ? "OK" : "ERR",
+           touch_sensor_ok(1) ? "OK" : "ERR",
+           touch_sensor_ok(2) ? "OK" : "ERR");
 
     printf("   |__1__|__2__|__3__|__4__|__5__|__6__|__7__|__8__|\n");
     print_raw_zones("A", raw, 8);
@@ -415,7 +467,8 @@ static void handle_raw()
 static void handle_whoami()
 {
     const char *msg[] = {"\nThis is Command Line port.\n", "\nThis is Touch port.\n", "\nThis is LED port.\n"};
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
         tud_cdc_n_write(i, msg[i], strlen(msg[i]));
         tud_cdc_n_write_flush(i);
     }
@@ -428,51 +481,80 @@ static void handle_save()
 
 static void handle_gpio(int argc, char *argv[])
 {
-    const char *usage = "Usage: gpio main <gpio1> <gpio2> ... <gpio8>\n"
+    const char *usage = "Usage: gpio level <low|high>\n"
+                        "       gpio main <gpio1> <gpio2> ... <gpio8>\n"
                         "       gpio <test|service|navigate|coin> <gpio>\n"
                         "       gpio reset\n"
                         "  gpio: 0..29\n";
-    if (argc == 1) {
-        if (strcasecmp(argv[0], "reset") != 0) {
+    if (argc == 1)
+    {
+        if (strcasecmp(argv[0], "reset") != 0)
+        {
             printf(usage);
             return;
         }
-        for (int i = 0; i < sizeof(mai_cfg->alt.buttons); i++) {
+        for (int i = 0; i < sizeof(mai_cfg->alt.buttons); i++)
+        {
             mai_cfg->alt.buttons[i] = 0xff;
         }
-    } else if (argc == 9) {
+    }
+    else if (argc == 9)
+    {
         const char *choices[] = {"main"};
-        if (cli_match_prefix(choices, 1, argv[0]) < 0) {
+        if (cli_match_prefix(choices, 1, argv[0]) < 0)
+        {
             printf(usage);
             return;
         }
         uint8_t gpio_main[8];
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++)
+        {
             int gpio = cli_extract_non_neg_int(argv[i + 1], 0);
-            if ((gpio < 0) || (gpio > 29)) {
+            if ((gpio < 0) || (gpio > 29))
+            {
                 printf(usage);
                 return;
             }
             gpio_main[i] = gpio;
         }
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++)
+        {
             int gpio = gpio_main[i];
             bool is_default = (gpio == button_default_gpio(i));
             mai_cfg->alt.buttons[i] = is_default ? 0xff : gpio;
         }
-    } else if (argc == 2) {
-        const char *choices[] = {"test", "service", "navigate", "coin"};
-        const uint8_t button_pos[] = {8, 9, 10, 11};
-        int match = cli_match_prefix(choices, 4, argv[0]);
-        uint8_t gpio = cli_extract_non_neg_int(argv[1], 0);
-        if ((match < 0) || (gpio > 29)) {
-            printf(usage);
-            return;
+    }
+    else if (argc == 2)
+    {
+        if (strcasecmp(argv[0], "level") == 0)
+        {
+            const char *choices[] = {"low", "high"};
+            int match = cli_match_prefix(choices, 2, argv[1]);
+            if (match < 0)
+            {
+                printf(usage);
+                return;
+            }
+            mai_cfg->alt.LowEnable = match == 0 ? true : false; 
         }
-        int index = button_pos[match];
-        bool is_default = (gpio == button_default_gpio(index));
-        mai_cfg->alt.buttons[index] = is_default ? 0xff : gpio;
-    } else {
+        else
+        {
+            const char *choices[] = {"test", "service", "navigate", "coin"};
+            const uint8_t button_pos[] = {8, 9, 10, 11};
+            int match = cli_match_prefix(choices, 4, argv[0]);
+            uint8_t gpio = cli_extract_non_neg_int(argv[1], 0);
+            if ((match < 0) || (gpio > 29))
+            {
+                printf(usage);
+                return;
+            }
+            int index = button_pos[match];
+            bool is_default = (gpio == button_default_gpio(index));
+            mai_cfg->alt.buttons[index] = is_default ? 0xff : gpio;
+        }
+    }
+    else
+    {
         printf(usage);
         return;
     }
@@ -484,29 +566,37 @@ static void handle_gpio(int argc, char *argv[])
 static void detect_touch()
 {
     bool touched = false;
-    for (int i = 0; i < 34; i++) {
-        if (touch_touched(i)) {
+    for (int i = 0; i < 34; i++)
+    {
+        if (touch_touched(i))
+        {
             touched = true;
             printf("Touched: %s", touch_key_name(i));
             uint8_t pad = touch_key_channel(i);
-            if (pad >= 0) {
+            if (pad >= 0)
+            {
                 printf(" (Sensor %d, Electrode %d)\n", pad / 12, pad % 12 + 1);
-            } else {
+            }
+            else
+            {
                 printf(" (nil)\n");
             }
         }
     }
-    if (!touched) {
+    if (!touched)
+    {
         printf("No touch detected.\n");
     }
 }
 
 static bool set_touch_map(int argc, char *argv[])
 {
-    if (argc != 3) {
+    if (argc != 3)
+    {
         return false;
     }
-    if (strlen(argv[2]) != 2) {
+    if (strlen(argv[2]) != 2)
+    {
         return false;
     }
     int sensor = cli_extract_non_neg_int(argv[0], 0);
@@ -515,7 +605,8 @@ static bool set_touch_map(int argc, char *argv[])
 
     if ((sensor < 0) || (sensor > 2) ||
         (channel < 0) || (channel > 11) ||
-        (key < 0)) {
+        (key < 0))
+    {
         return false;
     }
     touch_set_map(sensor * 12 + channel, key);
@@ -528,23 +619,32 @@ static void handle_touch(int argc, char *argv[])
                         "  sensor: 0..2\n"
                         " channel: 0..11\n"
                         "     key: A1, C2, E5, etc. XX means Not Connected.)\n";
-    if (argc == 0) {
+    if (argc == 0)
+    {
         detect_touch();
-    } else if (set_touch_map(argc, argv)) {
+    }
+    else if (set_touch_map(argc, argv))
+    {
         disp_touch();
-    } else {
+    }
+    else
+    {
         printf(usage);
     }
 }
 
-
 static bool handle_aime_mode(const char *mode)
 {
-    if (strcmp(mode, "0") == 0) {
+    if (strcmp(mode, "0") == 0)
+    {
         mai_cfg->aime.mode = 0;
-    } else if (strcmp(mode, "1") == 0) {
+    }
+    else if (strcmp(mode, "1") == 0)
+    {
         mai_cfg->aime.mode = 1;
-    } else {
+    }
+    else
+    {
         return false;
     }
     aime_set_mode(mai_cfg->aime.mode);
@@ -554,11 +654,16 @@ static bool handle_aime_mode(const char *mode)
 
 static bool handle_aime_virtual(const char *onoff)
 {
-    if (strcasecmp(onoff, "on") == 0) {
+    if (strcasecmp(onoff, "on") == 0)
+    {
         mai_cfg->aime.virtual_aic = 1;
-    } else if (strcasecmp(onoff, "off") == 0) {
+    }
+    else if (strcasecmp(onoff, "off") == 0)
+    {
         mai_cfg->aime.virtual_aic = 0;
-    } else {
+    }
+    else
+    {
         return false;
     }
     aime_virtual_aic(mai_cfg->aime.virtual_aic);
@@ -571,24 +676,31 @@ static void handle_aime(int argc, char *argv[])
     const char *usage = "Usage:\n"
                         "    aime mode <0|1>\n"
                         "    aime virtual <on|off>\n";
-    if (argc != 2) {
+    if (argc != 2)
+    {
         printf("%s", usage);
         return;
     }
 
-    const char *commands[] = { "mode", "virtual" };
+    const char *commands[] = {"mode", "virtual"};
     int match = cli_match_prefix(commands, 2, argv[0]);
-    
+
     bool ok = false;
-    if (match == 0) {
+    if (match == 0)
+    {
         ok = handle_aime_mode(argv[1]);
-    } else if (match == 1) {
+    }
+    else if (match == 1)
+    {
         ok = handle_aime_virtual(argv[1]);
     }
 
-    if (ok) {
+    if (ok)
+    {
         disp_aime();
-    } else {
+    }
+    else
+    {
         printf("%s", usage);
     }
 }

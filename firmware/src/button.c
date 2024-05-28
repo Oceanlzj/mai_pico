@@ -1,7 +1,7 @@
 /*
  * Mai Controller Buttons
  * WHowe <github.com/whowechina>
- * 
+ *
  */
 
 #include "button.h"
@@ -31,23 +31,34 @@ void button_init()
         sw_val[i] = false;
         sw_freeze_time[i] = 0;
         uint8_t gpio = mai_cfg->alt.buttons[i];
-        if (gpio > 29) {
+        if (gpio > 29)
+        {
             gpio = gpio_def[i];
         }
         gpio_real[i] = gpio;
-        gpio_init(gpio);
+        gpio_init(gpio); 
         gpio_set_function(gpio, GPIO_FUNC_SIO);
         gpio_set_dir(gpio, GPIO_IN);
-        gpio_pull_up(gpio);
+        if (mai_cfg->alt.LowEnable)
+        {
+            gpio_pull_up(gpio);
+        }
+        else
+        {
+            gpio_pull_down(gpio);
+        }
     }
 }
 
 bool button_is_stuck()
 {
-    for (int i = 0; i < BUTTON_NUM; i++) {
-        if (!gpio_get(gpio_real[i])) {
+    for (int i = 0; i < BUTTON_NUM; i++)
+    {
+        if ((!mai_cfg->alt.LowEnable) != (!gpio_get(gpio_real[i])))
+        {
             return true;
         }
+
     }
     return false;
 }
@@ -59,7 +70,8 @@ uint8_t button_num()
 
 uint8_t button_real_gpio(int id)
 {
-    if (id >= BUTTON_NUM) {
+    if (id >= BUTTON_NUM)
+    {
         return 0xff;
     }
     return gpio_real[id];
@@ -67,7 +79,8 @@ uint8_t button_real_gpio(int id)
 
 uint8_t button_default_gpio(int id)
 {
-    if (id >= BUTTON_NUM) {
+    if (id >= BUTTON_NUM)
+    {
         return 0xff;
     }
     return gpio_def[id];
@@ -82,18 +95,30 @@ void button_update()
     uint64_t now = time_us_64();
     uint16_t buttons = 0;
 
-    for (int i = BUTTON_NUM - 1; i >= 0; i--) {
-        bool sw_pressed = !gpio_get(gpio_real[i]);
-        
-        if (now >= sw_freeze_time[i]) {
-            if (sw_pressed != sw_val[i]) {
+    for (int i = BUTTON_NUM - 1; i >= 0; i--)
+    {
+        bool sw_pressed;
+        if (mai_cfg->alt.LowEnable)
+        {
+            sw_pressed = !gpio_get(gpio_real[i]);
+        }
+        else
+        {
+            sw_pressed = gpio_get(gpio_real[i]);
+        }
+
+        if (now >= sw_freeze_time[i])
+        {
+            if (sw_pressed != sw_val[i])
+            {
                 sw_val[i] = sw_pressed;
                 sw_freeze_time[i] = now + DEBOUNCE_FREEZE_TIME_US;
             }
         }
 
         buttons <<= 1;
-        if (sw_val[i]) {
+        if (sw_val[i])
+        {
             buttons |= 1;
         }
     }

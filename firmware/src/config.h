@@ -35,6 +35,7 @@ typedef struct __attribute__((packed)) {
     struct {
         uint8_t buttons[12];
         uint8_t touch[36];
+        bool LowEnable;
     } alt;
     struct {
         uint8_t mode : 4;
