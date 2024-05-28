@@ -105,7 +105,7 @@ static void core0_loop()
         save_loop();
         cli_fps_count(0);
 
-        sleep_until(next_frame);
+        sleep_until(from_us_since_boot(next_frame));
         next_frame += 1000; // 1KHz
 
         touch_update();
