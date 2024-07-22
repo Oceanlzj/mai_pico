@@ -57,6 +57,18 @@ static void run_lights()
         }
         rgb_set_button(i, color, 0);
     }
+   
+    uint32_t aime_color = aime_led_color();
+    uint8_t r = aime_color >> 16;
+    uint8_t g = aime_color >> 8;
+    uint8_t b = aime_color;
+
+    aime_color = rgb32(r, g, b, false);
+
+    rgb_set_color(62, aime_color);
+    rgb_set_color(63, aime_color);
+
+
 }
 
 
