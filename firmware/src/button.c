@@ -39,23 +39,23 @@ void button_init()
         gpio_init(gpio); 
         gpio_set_function(gpio, GPIO_FUNC_SIO);
         gpio_set_dir(gpio, GPIO_IN);
-        if (mai_cfg->alt.LowEnable)
-        {
-            gpio_pull_up(gpio);
-        }
-        else
-        {
-            gpio_pull_down(gpio);
-        }
+        gpio_pull_up(gpio);
     }
+}
+
+static inline bool button_pressed(int id)
+{
+    bool reading = gpio_get(gpio_real[id]);
+    bool active_level = id < 8 ? mai_cfg->tweak.main_button_active_high :
+                                 mai_cfg->tweak.aux_button_active_high;
+
+    return reading == active_level;
 }
 
 bool button_is_stuck()
 {
-    for (int i = 0; i < BUTTON_NUM; i++)
-    {
-        if ((!mai_cfg->alt.LowEnable) != (!gpio_get(gpio_real[i])))
-        {
+    for (int i = 0; i < BUTTON_NUM; i++) {
+        if (button_pressed(i)) {
             return true;
         }
 
@@ -95,22 +95,11 @@ void button_update()
     uint64_t now = time_us_64();
     uint16_t buttons = 0;
 
-    for (int i = BUTTON_NUM - 1; i >= 0; i--)
-    {
-        bool sw_pressed;
-        if (mai_cfg->alt.LowEnable)
-        {
-            sw_pressed = !gpio_get(gpio_real[i]);
-        }
-        else
-        {
-            sw_pressed = gpio_get(gpio_real[i]);
-        }
-
-        if (now >= sw_freeze_time[i])
-        {
-            if (sw_pressed != sw_val[i])
-            {
+    for (int i = BUTTON_NUM - 1; i >= 0; i--) {
+        bool sw_pressed = button_pressed(i);
+        
+        if (now >= sw_freeze_time[i]) {
+            if (sw_pressed != sw_val[i]) {
                 sw_val[i] = sw_pressed;
                 sw_freeze_time[i] = now + DEBOUNCE_FREEZE_TIME_US;
             }

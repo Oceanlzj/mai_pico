@@ -37,14 +37,15 @@
 #include "io.h"
 #include "hid.h"
 
-static void run_lights()
+static void button_lights_clear()
 {
-    uint64_t now = time_us_64();
-    if (io_is_active() || aime_is_active())
-    {
-        return;
+    for (int i = 0; i < 8; i++) {
+        rgb_set_button(i, 0, 0);
     }
+}
 
+static void button_lights_rainbow()
+{
     static uint16_t loop = 0;
     loop++;
     uint16_t buttons = button_read();
@@ -62,17 +63,22 @@ static void run_lights()
         }
         rgb_set_button(i, color, 0);
     }
-
-    uint32_t aime_color = aime_led_color();
-    uint8_t r = aime_color >> 16;
-    uint8_t g = aime_color >> 8;
-    uint8_t b = aime_color;
-
-    aime_color = rgb32(r, g, b, false);
-
-    //set_color(62, aime_color, 0);
-    //set_color(63, aime_color, 0);
 }
+
+static void run_lights()
+{
+    static bool was_rainbow = true;
+    bool go_rainbow = !io_is_active() && !aime_is_active();
+
+    if (go_rainbow) {
+        button_lights_rainbow();
+    } else if (was_rainbow) {
+        button_lights_clear();
+    }
+
+    was_rainbow = go_rainbow;
+}
+
 
 const int aime_intf = 3;
 static void cdc_aime_putc(uint8_t byte)
