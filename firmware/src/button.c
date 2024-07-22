@@ -36,29 +36,36 @@ void button_init()
             gpio = gpio_def[i];
         }
         gpio_real[i] = gpio;
-        gpio_init(gpio); 
+        gpio_init(gpio);
         gpio_set_function(gpio, GPIO_FUNC_SIO);
         gpio_set_dir(gpio, GPIO_IN);
-        gpio_pull_up(gpio);
+        if (i < 8 ? mai_cfg->tweak.main_button_active_high : mai_cfg->tweak.aux_button_active_high)
+        {
+            gpio_pull_down(i);
+        }
+        else
+        {
+            gpio_pull_up(i);
+        }
     }
 }
 
 static inline bool button_pressed(int id)
 {
     bool reading = gpio_get(gpio_real[id]);
-    bool active_level = id < 8 ? mai_cfg->tweak.main_button_active_high :
-                                 mai_cfg->tweak.aux_button_active_high;
+    bool active_level = id < 8 ? mai_cfg->tweak.main_button_active_high : mai_cfg->tweak.aux_button_active_high;
 
     return reading == active_level;
 }
 
 bool button_is_stuck()
 {
-    for (int i = 0; i < BUTTON_NUM; i++) {
-        if (button_pressed(i)) {
+    for (int i = 0; i < BUTTON_NUM; i++)
+    {
+        if (button_pressed(i))
+        {
             return true;
         }
-
     }
     return false;
 }
@@ -95,11 +102,14 @@ void button_update()
     uint64_t now = time_us_64();
     uint16_t buttons = 0;
 
-    for (int i = BUTTON_NUM - 1; i >= 0; i--) {
+    for (int i = BUTTON_NUM - 1; i >= 0; i--)
+    {
         bool sw_pressed = button_pressed(i);
-        
-        if (now >= sw_freeze_time[i]) {
-            if (sw_pressed != sw_val[i]) {
+
+        if (now >= sw_freeze_time[i])
+        {
+            if (sw_pressed != sw_val[i])
+            {
                 sw_val[i] = sw_pressed;
                 sw_freeze_time[i] = now + DEBOUNCE_FREEZE_TIME_US;
             }

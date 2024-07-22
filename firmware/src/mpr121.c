@@ -216,4 +216,5 @@ void mpr121_debounce(uint8_t addr, uint8_t touch, uint8_t release)
     uint8_t ecr = mpr121_stop(addr);
     write_reg(addr, 0x5B, (release & 0x07) << 4 | (touch & 0x07));
     mpr121_resume(addr, ecr);
+    
 }
