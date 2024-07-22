@@ -40,24 +40,29 @@
 static void run_lights()
 {
     uint64_t now = time_us_64();
-    if (io_is_active() || aime_is_active()) {
+    if (io_is_active() || aime_is_active())
+    {
         return;
     }
 
     static uint16_t loop = 0;
     loop++;
     uint16_t buttons = button_read();
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++)
+    {
         uint8_t phase = (i * 256 + loop) / 8;
         uint32_t color;
-        if (buttons & (1 << i)) {
+        if (buttons & (1 << i))
+        {
             color = rgb32_from_hsv(phase, 64, 255);
-        } else {
+        }
+        else
+        {
             color = rgb32_from_hsv(phase, 240, 20);
         }
         rgb_set_button(i, color, 0);
     }
-   
+
     uint32_t aime_color = aime_led_color();
     uint8_t r = aime_color >> 16;
     uint8_t g = aime_color >> 8;
@@ -65,12 +70,9 @@ static void run_lights()
 
     aime_color = rgb32(r, g, b, false);
 
-    rgb_set_color(62, aime_color);
-    rgb_set_color(63, aime_color);
-
-
+    //set_color(62, aime_color, 0);
+    //set_color(63, aime_color, 0);
 }
-
 
 const int aime_intf = 3;
 static void cdc_aime_putc(uint8_t byte)
@@ -81,11 +83,13 @@ static void cdc_aime_putc(uint8_t byte)
 
 static void aime_run()
 {
-    if (tud_cdc_n_available(aime_intf)) {
+    if (tud_cdc_n_available(aime_intf))
+    {
         uint8_t buf[32];
         uint32_t count = tud_cdc_n_read(aime_intf, buf, sizeof(buf));
 
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++)
+        {
             aime_feed(buf[i]);
         }
     }
@@ -93,8 +97,10 @@ static void aime_run()
 static mutex_t core1_io_lock;
 static void core1_loop()
 {
-    while (1) {
-        if (mutex_try_enter(&core1_io_lock, NULL)) {
+    while (1)
+    {
+        if (mutex_try_enter(&core1_io_lock, NULL))
+        {
             run_lights();
             rgb_update();
             mutex_exit(&core1_io_lock);
@@ -108,7 +114,8 @@ static void core0_loop()
 {
     uint64_t next_frame = time_us_64();
 
-    while(1) {
+    while (1)
+    {
         tud_task();
         io_update();
 
@@ -152,7 +159,7 @@ void init()
     aime_virtual_aic(mai_cfg->aime.virtual_aic);
 
     cli_init("mai_pico>", "\n   << Mai Pico Controller >>\n"
-                            " https://github.com/whowechina\n\n");
+                          " https://github.com/whowechina\n\n");
     commands_init();
 
     mai_runtime.key_stuck = button_is_stuck();
